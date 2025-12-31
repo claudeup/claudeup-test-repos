@@ -1,0 +1,10 @@
+{
+  "enabledPlugins": {
+    "tdd-workflows@claude-code-workflows": true,
+    "backend-development@claude-code-workflows": true,
+    "backend-api-security@claude-code-workflows": true
+  },
+  "trustedPlugins": [
+    "claude-code-workflows"
+  ]
+}

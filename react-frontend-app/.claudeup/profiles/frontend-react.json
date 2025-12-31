@@ -1,0 +1,18 @@
+{
+  "name": "frontend-react",
+  "description": "React frontend development with UI design and superpowers",
+  "mcpServers": [],
+  "marketplaces": [
+    {"source": "github", "repo": "anthropics/claude-code"},
+    {"source": "github", "repo": "anthropics/claude-code-workflows"},
+    {"source": "github", "repo": "anthropics/superpowers-marketplace"}
+  ],
+  "plugins": [
+    "frontend-design@claude-code-workflows",
+    "superpowers@superpowers-marketplace"
+  ],
+  "detect": {
+    "files": ["package.json", "tsconfig.json"],
+    "patterns": ["*.tsx", "*.jsx"]
+  }
+}

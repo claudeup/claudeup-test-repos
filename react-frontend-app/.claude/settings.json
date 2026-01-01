@@ -1,10 +1,10 @@
 {
   "enabledPlugins": {
-    "frontend-design@claude-code-workflows": true,
+    "frontend-design@claude-plugins-official": true,
     "superpowers@superpowers-marketplace": true
   },
   "trustedPlugins": [
-    "claude-code-workflows",
+    "claude-plugins-official",
     "superpowers-marketplace"
   ]
 }

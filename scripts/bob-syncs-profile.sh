@@ -73,7 +73,6 @@ setup_temp_env() {
     TEMP_DIR=$(mktemp -d "/tmp/bob-sync-test-XXXXXXXXXX")
 
     # Set up isolated Claude environment for Bob
-    export HOME="$TEMP_DIR"
     export CLAUDE_CONFIG_DIR="$TEMP_DIR/.claude"
     export CLAUDEUP_HOME="$TEMP_DIR/.claudeup"
 

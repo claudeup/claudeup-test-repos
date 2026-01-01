@@ -142,7 +142,8 @@ pause
 
 step "Alice checks what plugins the profile specifies"
 info "Plugins for React frontend development:"
-info "  - frontend-design@claude-code-workflows"
+info "  - frontend-design@claude-plugins-official"
+info "  - ralph-wiggum@claude-plugins-official"
 info "  - superpowers@superpowers-marketplace"
 echo ""
 
@@ -177,7 +178,7 @@ info "  Plugins: tdd-workflows, backend-development, backend-api-security"
 echo ""
 info "React Frontend App:"
 info "  Profile: frontend-react"
-info "  Plugins: frontend-design, superpowers"
+info "  Plugins: frontend-design, ralph-wiggum, superpowers"
 echo ""
 info "Next step: Run bob-syncs-profile.sh to see how team members sync"
 echo ""

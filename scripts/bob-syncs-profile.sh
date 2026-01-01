@@ -249,6 +249,7 @@ echo ""
 # Expected React plugins
 REACT_PLUGINS=(
     "frontend-design@claude-plugins-official"
+    "ralph-wiggum@claude-plugins-official"
     "superpowers@superpowers-marketplace"
 )
 

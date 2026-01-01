@@ -14,6 +14,7 @@ claudeup profile sync
 
 This installs the team's Claude Code plugins:
 - `frontend-design` (claude-plugins-official) - UI/UX design patterns and best practices
+- `ralph-wiggum` - AI loops for iterative development
 - `superpowers` (superpowers-marketplace) - Enhanced Claude Code capabilities
 
 ### Team profile

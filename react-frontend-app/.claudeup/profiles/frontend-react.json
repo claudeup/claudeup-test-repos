@@ -9,6 +9,7 @@
   ],
   "plugins": [
     "frontend-design@claude-plugins-official",
+    "ralph-wiggum@claude-plugins-official",
     "superpowers@superpowers-marketplace"
   ],
   "detect": {

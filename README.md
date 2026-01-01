@@ -9,7 +9,7 @@ This repository contains two example projects that demonstrate how teams can sha
 | Project | Description | Team Profile |
 |---------|-------------|--------------|
 | `go-backend-api/` | Go HTTP API server | `backend-go` (TDD, backend dev, API security) |
-| `react-frontend-app/` | React TypeScript app | `frontend-react` (frontend design, superpowers) |
+| `react-frontend-app/` | React TypeScript app | `frontend-react` (frontend design, superpowers, ralph-wiggum) |
 
 ## Quick Start
 
@@ -111,4 +111,5 @@ Marketplaces: `anthropics/claude-plugins-official`, `obra/superpowers-marketplac
 
 Plugins:
 - `frontend-design@claude-plugins-official` - UI/UX design patterns
+- `ralph-wiggum@claude-plugins-official` - AI loops for iterative development
 - `superpowers@superpowers-marketplace` - Enhanced Claude capabilities

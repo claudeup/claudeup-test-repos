@@ -13,8 +13,8 @@ claudeup profile sync
 ```
 
 This installs the team's Claude Code plugins:
-- `frontend-design` - UI/UX design patterns and best practices
-- `superpowers` - Enhanced Claude Code capabilities
+- `frontend-design` (claude-plugins-official) - UI/UX design patterns and best practices
+- `superpowers` (superpowers-marketplace) - Enhanced Claude Code capabilities
 
 ### Team profile
 

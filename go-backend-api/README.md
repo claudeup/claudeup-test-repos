@@ -12,7 +12,7 @@ This project uses claudeup for team configuration management.
 claudeup profile sync
 ```
 
-This installs the team's Claude Code plugins:
+This installs the team's Claude Code plugins (from wshobson/agents):
 - `tdd-workflows` - Test-driven development practices
 - `backend-development` - Backend coding patterns
 - `backend-api-security` - API security guidelines

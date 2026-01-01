@@ -4,7 +4,7 @@
   "mcpServers": [],
   "marketplaces": [
     {"source": "github", "repo": "anthropics/claude-code"},
-    {"source": "github", "repo": "anthropics/claude-code-workflows"}
+    {"source": "github", "repo": "wshobson/agents"}
   ],
   "plugins": [
     "tdd-workflows@claude-code-workflows",

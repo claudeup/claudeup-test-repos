@@ -4,11 +4,11 @@
   "mcpServers": [],
   "marketplaces": [
     {"source": "github", "repo": "anthropics/claude-code"},
-    {"source": "github", "repo": "anthropics/claude-code-workflows"},
-    {"source": "github", "repo": "anthropics/superpowers-marketplace"}
+    {"source": "github", "repo": "anthropics/claude-plugins-official"},
+    {"source": "github", "repo": "obra/superpowers-marketplace"}
   ],
   "plugins": [
-    "frontend-design@claude-code-workflows",
+    "frontend-design@claude-plugins-official",
     "superpowers@superpowers-marketplace"
   ],
   "detect": {

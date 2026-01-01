@@ -98,6 +98,8 @@ NON_INTERACTIVE=true ./scripts/bob-syncs-profile.sh
 
 ### Go Backend (`backend-go`)
 
+Marketplace: `wshobson/agents`
+
 Plugins:
 - `tdd-workflows@claude-code-workflows` - Test-driven development practices
 - `backend-development@claude-code-workflows` - Backend coding patterns
@@ -105,6 +107,8 @@ Plugins:
 
 ### React Frontend (`frontend-react`)
 
+Marketplaces: `anthropics/claude-plugins-official`, `obra/superpowers-marketplace`
+
 Plugins:
-- `frontend-design@claude-code-workflows` - UI/UX design patterns
+- `frontend-design@claude-plugins-official` - UI/UX design patterns
 - `superpowers@superpowers-marketplace` - Enhanced Claude capabilities

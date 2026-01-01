@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: Simulates Bob (team member) syncing team profiles after cloning
-# ABOUTME: Demonstrates the team member workflow for claudeup profile sharing
+# ABOUTME: Verifies plugins are actually installed in a clean environment
 
 set -euo pipefail
 
@@ -62,23 +62,25 @@ GO_PROJECT="$REPO_ROOT/go-backend-api"
 REACT_PROJECT="$REPO_ROOT/react-frontend-app"
 CLAUDEUP_BIN="${CLAUDEUP_BIN:-claudeup}"
 
+# Track test results
+TESTS_PASSED=0
+TESTS_FAILED=0
+
 # Create isolated temp environment
 TEMP_DIR=""
-TEMP_CLAUDE_HOME=""
 
 setup_temp_env() {
     TEMP_DIR=$(mktemp -d "/tmp/bob-sync-test-XXXXXXXXXX")
-    TEMP_CLAUDE_HOME="$TEMP_DIR/.claude"
 
     # Set up isolated Claude environment for Bob
     export HOME="$TEMP_DIR"
-    export CLAUDE_CONFIG_DIR="$TEMP_CLAUDE_HOME"
+    export CLAUDE_CONFIG_DIR="$TEMP_DIR/.claude"
     export CLAUDEUP_HOME="$TEMP_DIR/.claudeup"
 
-    mkdir -p "$TEMP_CLAUDE_HOME/plugins"
-    mkdir -p "$TEMP_DIR/.claudeup/profiles"
+    mkdir -p "$CLAUDE_CONFIG_DIR/plugins"
+    mkdir -p "$CLAUDEUP_HOME/profiles"
 
-    info "Created isolated environment for Bob: $TEMP_DIR"
+    info "Created isolated environment: $TEMP_DIR"
 }
 
 cleanup_temp_env() {
@@ -86,9 +88,54 @@ cleanup_temp_env() {
         case "$TEMP_DIR" in
             /tmp/bob-sync-test-*)
                 rm -rf "$TEMP_DIR"
-                success "Cleaned up Bob's temp environment"
+                success "Cleaned up temp environment"
                 ;;
         esac
+    fi
+}
+
+# Cleanup on exit (success or failure)
+trap cleanup_temp_env EXIT
+
+# Verify a plugin is installed
+verify_plugin_installed() {
+    local plugin_name="$1"
+    local installed_plugins_file="$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json"
+
+    if [[ ! -f "$installed_plugins_file" ]]; then
+        error "installed_plugins.json not found"
+        return 1
+    fi
+
+    if grep -q "\"$plugin_name\"" "$installed_plugins_file"; then
+        success "Plugin installed: $plugin_name"
+        return 0
+    else
+        error "Plugin NOT installed: $plugin_name"
+        return 1
+    fi
+}
+
+# Verify plugin count
+verify_plugin_count() {
+    local expected="$1"
+    local installed_plugins_file="$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json"
+
+    if [[ ! -f "$installed_plugins_file" ]]; then
+        error "installed_plugins.json not found"
+        return 1
+    fi
+
+    # Count plugin entries (look for scope field which appears once per installation)
+    local actual
+    actual=$(grep -c '"scope":' "$installed_plugins_file" 2>/dev/null || echo "0")
+
+    if [[ "$actual" -ge "$expected" ]]; then
+        success "Plugin count: $actual (expected at least $expected)"
+        return 0
+    else
+        error "Plugin count: $actual (expected at least $expected)"
+        return 1
     fi
 }
 
@@ -101,8 +148,8 @@ cat <<'EOF'
 ║         Bob Syncs Team Profiles (Team Member Workflow)         ║
 ╚════════════════════════════════════════════════════════════════╝
 
-This simulation shows how Bob (a new team member) syncs Claude Code
-configurations after cloning a project.
+This test verifies that a new team member can sync Claude Code
+configurations from a project using claudeup profile sync.
 
 EOF
 pause
@@ -114,114 +161,131 @@ if ! command -v "$CLAUDEUP_BIN" &>/dev/null; then
 fi
 success "Found claudeup: $(command -v "$CLAUDEUP_BIN")"
 
-section "0. Setup Isolated Environment"
+section "0. Setup Clean Environment"
 
-step "Creating isolated Claude environment for Bob"
-info "This simulates Bob having a fresh machine without plugins installed"
+step "Creating isolated Claude environment (simulating fresh machine)"
 setup_temp_env
 echo ""
+info "HOME=$HOME"
 info "CLAUDE_CONFIG_DIR=$CLAUDE_CONFIG_DIR"
 info "CLAUDEUP_HOME=$CLAUDEUP_HOME"
 pause
 
-section "1. Bob Clones and Syncs Go Project"
+step "Verify no plugins installed initially"
+run_cmd "$CLAUDEUP_BIN" plugin list
+echo ""
+pause
 
-step "Bob 'clones' the Go backend project"
-info "(Simulated - project already exists at $GO_PROJECT)"
+section "1. Test Go Backend Project Sync"
+
+step "Navigate to Go project"
 cd "$GO_PROJECT"
 info "Current directory: $(pwd)"
 echo ""
 
-step "Bob sees the .claudeup.json and knows to run sync"
+step "Show project config"
 cat .claudeup.json
 echo ""
 pause
 
-step "Bob checks what plugins he currently has installed"
-info "Bob's current Claude plugins (should be empty):"
-run_cmd "$CLAUDEUP_BIN" plugin list 2>&1 || info "(No plugins installed yet)"
+step "Run 'claudeup profile sync'"
+if run_cmd "$CLAUDEUP_BIN" profile sync; then
+    success "Sync completed successfully"
+else
+    error "Sync failed!"
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
 echo ""
 pause
 
-step "Bob runs 'claudeup profile sync' to get team config"
-info "This reads .claudeup.json and installs the team's plugins"
+step "Verify plugins were installed"
 echo ""
-run_cmd "$CLAUDEUP_BIN" profile sync 2>&1 || {
-    warn "Sync may have encountered issues (expected in test env)"
-    info "In a real scenario, this would install:"
-    info "  - tdd-workflows@claude-code-workflows"
-    info "  - backend-development@claude-code-workflows"
-    info "  - backend-api-security@claude-code-workflows"
-}
+
+# Expected Go plugins
+GO_PLUGINS=(
+    "tdd-workflows@claude-code-workflows"
+    "backend-development@claude-code-workflows"
+    "backend-api-security@claude-code-workflows"
+)
+
+for plugin in "${GO_PLUGINS[@]}"; do
+    if verify_plugin_installed "$plugin"; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+done
+echo ""
+
+step "Show installed plugins"
+run_cmd "$CLAUDEUP_BIN" plugin list
 echo ""
 pause
 
-step "Bob verifies the profile is now active"
-run_cmd "$CLAUDEUP_BIN" profile list 2>&1 || true
-echo ""
-pause
+section "2. Test React Frontend Project Sync"
 
-section "2. Bob Clones and Syncs React Project"
-
-step "Bob 'clones' the React frontend project"
+step "Navigate to React project"
 cd "$REACT_PROJECT"
 info "Current directory: $(pwd)"
 echo ""
 
-step "Bob sees the .claudeup.json"
+step "Show project config"
 cat .claudeup.json
 echo ""
 pause
 
-step "Bob runs sync for the React project"
-run_cmd "$CLAUDEUP_BIN" profile sync 2>&1 || {
-    warn "Sync may have encountered issues (expected in test env)"
-    info "In a real scenario, this would install:"
-    info "  - frontend-design@claude-code-workflows"
-    info "  - superpowers@superpowers-marketplace"
-}
+step "Run 'claudeup profile sync'"
+if run_cmd "$CLAUDEUP_BIN" profile sync; then
+    success "Sync completed successfully"
+else
+    error "Sync failed!"
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
 echo ""
 pause
 
-step "Bob verifies the React profile is active"
-run_cmd "$CLAUDEUP_BIN" profile list 2>&1 || true
+step "Verify plugins were installed"
+echo ""
+
+# Expected React plugins
+REACT_PLUGINS=(
+    "frontend-design@claude-plugins-official"
+    "superpowers@superpowers-marketplace"
+)
+
+for plugin in "${REACT_PLUGINS[@]}"; do
+    if verify_plugin_installed "$plugin"; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+done
+echo ""
+
+step "Show all installed plugins"
+run_cmd "$CLAUDEUP_BIN" plugin list
 echo ""
 pause
 
-section "3. Bob's Workflow Summary"
+section "3. Test Results"
 
-success "Bob has synced both team profiles!"
 echo ""
-info "Go Backend API workflow:"
-echo -e "  ${YELLOW}\$ git clone <repo>${NC}"
-echo -e "  ${YELLOW}\$ cd go-backend-api${NC}"
-echo -e "  ${YELLOW}\$ claudeup profile sync${NC}"
-echo -e "  ${GREEN}✔ Team plugins installed automatically${NC}"
-echo ""
-info "React Frontend App workflow:"
-echo -e "  ${YELLOW}\$ git clone <repo>${NC}"
-echo -e "  ${YELLOW}\$ cd react-frontend-app${NC}"
-echo -e "  ${YELLOW}\$ claudeup profile sync${NC}"
-echo -e "  ${GREEN}✔ Team plugins installed automatically${NC}"
-echo ""
-pause
-
-section "4. Key Benefits"
-
-info "For Bob (team member):"
-info "  • One command to get the team's Claude setup"
-info "  • No manual plugin installation"
-info "  • Always in sync with team standards"
-echo ""
-info "For Alice (team lead):"
-info "  • Define Claude config once, share via git"
-info "  • New team members onboard instantly"
-info "  • Updates propagate with 'git pull && claudeup profile sync'"
+if [[ $TESTS_FAILED -eq 0 ]]; then
+    success "All tests passed! ($TESTS_PASSED passed, $TESTS_FAILED failed)"
+    echo ""
+    info "The team workflow is working correctly:"
+    info "  • Profiles are detected from project .claudeup/profiles/"
+    info "  • Sync installs marketplaces and plugins"
+    info "  • New team members can onboard with one command"
+else
+    error "Some tests failed! ($TESTS_PASSED passed, $TESTS_FAILED failed)"
+    echo ""
+    error "Check the output above for details."
+    exit 1
+fi
 echo ""
 
 section "Cleanup"
 
-step "Cleaning up Bob's isolated environment"
-cleanup_temp_env
-echo ""
-success "Simulation complete!"
+# Cleanup happens automatically via trap
+success "Test complete!"

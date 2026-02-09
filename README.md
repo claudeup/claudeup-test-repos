@@ -34,10 +34,13 @@ This repository contains two example projects that demonstrate how teams can sha
 
 1. Configure Claude with the plugins your team needs
 2. Save the configuration as a project profile:
+
    ```bash
    claudeup profile save backend-go --scope project
    ```
+
 3. Commit to git:
+
    ```bash
    git add .claudeup .claude .claudeup.json
    git commit -m "Add Claude Code team profile"
@@ -47,11 +50,14 @@ This repository contains two example projects that demonstrate how teams can sha
 ### Bob (Team Member) Syncs
 
 1. Clone the repository:
+
    ```bash
    git clone <repo-url>
    cd <project>
    ```
+
 2. Sync Claude configuration:
+
    ```bash
    claudeup profile sync
    ```
@@ -101,6 +107,7 @@ NON_INTERACTIVE=true ./scripts/bob-syncs-profile.sh
 Marketplace: `wshobson/agents`
 
 Plugins:
+
 - `tdd-workflows@claude-code-workflows` - Test-driven development practices
 - `backend-development@claude-code-workflows` - Backend coding patterns
 - `backend-api-security@claude-code-workflows` - API security guidelines
@@ -110,6 +117,7 @@ Plugins:
 Marketplaces: `anthropics/claude-plugins-official`, `obra/superpowers-marketplace`
 
 Plugins:
+
 - `frontend-design@claude-plugins-official` - UI/UX design patterns
 - `ralph-wiggum@claude-plugins-official` - AI loops for iterative development
 - `superpowers@superpowers-marketplace` - Enhanced Claude capabilities
